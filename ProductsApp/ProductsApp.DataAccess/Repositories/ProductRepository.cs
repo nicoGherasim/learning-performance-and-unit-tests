@@ -21,7 +21,6 @@ namespace ProductsApp.DataAccess.Repositories
 
         public List<Product> GetAllProducts()
         {
-
             return this.databaseContext.Products.ToList();
         }
 

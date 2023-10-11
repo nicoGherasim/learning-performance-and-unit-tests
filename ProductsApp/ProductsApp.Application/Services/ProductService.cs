@@ -16,14 +16,6 @@ namespace ProductsApp.Application.Services
 
         public ProductResponseModel CreateProduct(CreateProductRequestModel model)
         {
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                Name = model.Name,
-                Price = model.Price,
-                NumberOfPieces = model.NumberOfPieces
-            };
-
             if (string.IsNullOrEmpty(model.Name))
             {
                 throw new InputValidationException("Name cannot be null or empty.");
@@ -33,6 +25,14 @@ namespace ProductsApp.Application.Services
             {
                 throw new InputValidationException("Name should have length greater than 3.");
             }
+
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Price = model.Price,
+                NumberOfPieces = model.NumberOfPieces
+            };
 
             var createdProduct = this.productRepository.CreateProduct(product);
 
@@ -61,8 +61,6 @@ namespace ProductsApp.Application.Services
 
         public ProductResponseModel UpdateProduct(Guid id, UpdateProductRequestModel model)
         {
-            var product = this.productRepository.GetProductById(id);
-
             if (string.IsNullOrEmpty(model.Name))
             {
                 throw new InputValidationException("Name cannot be null or empty.");
@@ -78,19 +76,21 @@ namespace ProductsApp.Application.Services
                 throw new InputValidationException("Price should be greater than 0!");
             }
 
+            var product = this.productRepository.GetProductById(id);
+
             if (product == null)
             {
                 throw new NotFoundException($"The Product with id {id} does not exist!");
             }
-
-            product.Name = model.Name;
-            product.Price = model.Price;
 
             var newNumberOfPieces = product.NumberOfPieces - model.NumberOfPieces;
             if (newNumberOfPieces < 0)
             {
                 throw new InputValidationException("You are trying to remove too many pieces!");
             }
+
+            product.Name = model.Name;
+            product.Price = model.Price;
             product.NumberOfPieces = newNumberOfPieces;
 
             var updatedProduct = this.productRepository.UpdateProduct(product);
